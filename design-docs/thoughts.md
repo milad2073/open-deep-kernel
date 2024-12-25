@@ -1,4 +1,4 @@
-DAY 1:
+DAY 1:<br/>
 The library can be:
 1) a playground to relace each part of "pytorch GPU functions" with your own triton kernel
 2) a real tool for upgrading "pytorch GPU functions" 
@@ -6,7 +6,7 @@ The library can be:
 
 <br/><br/>
 
-DAY 2:
+DAY 2:<br/>
 It seems the best practice for replacing Triton kernels with
 pytorch is not by mokey-patching, instead, three options are presented:
 1) Torch Compile    --> since version 2.0
@@ -18,6 +18,19 @@ pytorch is not by mokey-patching, instead, three options are presented:
 The first one uses torch dynamo and is prefered when 
 you want to replace your kernel in any model (although the model should be torch dynamo compatible). <br/>
 The fx method is more flexible but it is not a general solution because it cannot handle dynamic shapes and control flow.<br/>
-The third one is for for deploying torch models in envoiroments other than python.
+The third one is for for deploying torch models in envoiroments other than python. <br/>
+Both Gemini and ChatGPT suggested to use fx. <br/><br/>
+<br/>
+<br/>
 
-TODO: also both Gemini and ChatGPT suggested to use fx, Search about torch compile and its relation to Triton
+DAY 3:<br/>
+TODO: Search about torch compile and its relation to Triton. [Done] <br/>
+
+<br/>
+<br/>
+
+DAY 4:<br/>
+It seems both torch fx and torch compile graphes does not show the fines element as their nodes. For example instead of showing the "matmul" operation, they show the "linear" function. <br/>
+
+We may need to implemenmt a pass that decompose the high level nodes with the low level nodes. <br/>
+
