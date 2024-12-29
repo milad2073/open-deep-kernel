@@ -1,8 +1,8 @@
+import torch
+from ..graph_transformations.addation import addation
 
 
-
-
-class Registry:
+class Registry(dict):
     
     def __new__(cls):
         if not hasattr(cls, 'instance'):
@@ -12,6 +12,11 @@ class Registry:
     def __init__(self) -> None:
         self.kernels = {}
         
-    def set_addaion(self,func):
-        self.kernels['addation'] = func
+    
+    
+    def set_addaion(self,func): 
+        self.__setitem__('addation', addation(func))
         return func
+    
+    
+    

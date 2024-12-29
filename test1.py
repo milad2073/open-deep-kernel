@@ -1,12 +1,10 @@
-from odk.register import Kernels
-from odk import odk_backend
+from odk import Kernels, odk_backend
 import triton
 import triton.language as tl
 import torch 
 import torchvision.models as models 
 
-# Setting the kernels
-@Kernels.set_addaion
+
 @triton.jit
 def add_kernel(
     x_ptr, y_ptr, output_ptr, n_elements,
@@ -20,7 +18,21 @@ def add_kernel(
     y = tl.load(y_ptr + offsets, mask=mask)
     tl.store(output_ptr + offsets, x + y, mask=mask)
 
-
+# Setting the kernels
+@Kernels.set_addaion
+def triton_add(x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
+    assert x.shape == y.shape, "Shapes of tensors must match"
+    output = torch.empty_like(x)
+    n_elements = x.numel()
+    grid = lambda meta: (triton.cdiv(n_elements, meta['BLOCK_SIZE']),)
+    add_kernel[grid](
+        x,
+        y,
+        output,
+        n_elements,
+        BLOCK_SIZE=1024
+    )
+    return output
 
 # Derfining the model
 model = models.resnet18().cuda()
