@@ -1,4 +1,4 @@
-from odk import Kernels, odk_backend
+from odk import Kernels, Backend
 import triton
 import triton.language as tl
 import torch 
@@ -37,9 +37,11 @@ def triton_add(x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
 # Derfining the model
 model = models.resnet18().cuda()
 
+# create a backend 
+my_backecnd = Backend(draw_graphes=True)
 # replacing pytorch built-in kernels with defined kernels 
 torch._dynamo.reset()
-model_with_relaced_kernels = torch.compile(model, backend=odk_backend)
+model_with_relaced_kernels = torch.compile(model, backend=my_backecnd)
 
 
 

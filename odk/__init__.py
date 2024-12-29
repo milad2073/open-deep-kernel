@@ -1,2 +1,2 @@
-from .backend_handler import odk_backend
+from .backend_handler import Backend
 from .register import Kernels
