@@ -4,14 +4,18 @@ import torch
 
 
 
-class addation(baseTransformation):
-        
+class relu(baseTransformation):
+    
+    
+    
     def __init__(self, func):
         super().__init__()
         self.func = func
     
     def is_applicable(self, node):
-        return node.target in [operator.iadd, operator.add, torch.add ]
+        if node.op == "call_module":
+            return node.meta['source_fn'][1] == torch.nn.modules.activation.ReLU
+        return False
     
     def replacement (self, graph, node):
         with graph.inserting_after(node):

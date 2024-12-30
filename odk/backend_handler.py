@@ -3,6 +3,7 @@ from .register.registry import Registry
 from .graph_transformations.base import baseTransformation
 from pathlib import Path
 from torch.fx.passes.graph_drawer import FxGraphDrawer
+from  datetime import datetime
 
 
 # It is a custom backend for torch.compile   
@@ -23,19 +24,20 @@ class Backend:
         """A backend that replaces operations with their Triton-based equevalents."""
         
         if self.draw_graphes:
-            self._draw_graphes(graph_module, "prev")
+            svg_filename = datetime.now().strftime('%Y%m%d_%H%M%S%f')
+            self._draw_graphes(graph_module, f"{svg_filename}_prev")
             
         graph = graph_module.graph
         for node in graph.nodes:
-            kernel:baseTransformation
-            for kernel_name, kernel in self.kernel_dict.items():
-                if (node.target in kernel.operators):
-                    kernel.replacement(graph, node)
+            transformation:baseTransformation
+            for transformation_name, transformation in self.kernel_dict.items():
+                if transformation.is_applicable(node):
+                    transformation.replacement(graph, node)
                     
         graph.lint()
         graph_module.recompile()
         if self.draw_graphes:
-            self._draw_graphes(graph_module, "post")
+            self._draw_graphes(graph_module, f"{svg_filename}_post")
         return graph_module
     
     def _draw_graphes(self, graph_module, name):

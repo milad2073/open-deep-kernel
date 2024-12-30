@@ -1,5 +1,5 @@
 import torch
-from ..graph_transformations.addation import addation
+from ..graph_transformations import addation, relu
 
 
 class Registry(dict):
@@ -32,5 +32,23 @@ class Registry(dict):
         self.__setitem__('addation', addation(func))
         return func
     
+    def set_relu(self,func):
+        """
+        Decorator to register a function as a 'ReLU' operation in the Registry.
+
+        This method takes a function as an argument, wraps it with the ReLU 
+        transformation, and stores it in the Registry under the key 'relu'. 
+        This allows for easy retrieval and application of the 'ReLU' operation 
+        later in the program.
+
+        --------
+        @registry.set_relu
+        
+        def my_relu_function(x):
+            pass
+        """
+        self.__setitem__('relu', relu(func))  
+        return func     
+        
     
     

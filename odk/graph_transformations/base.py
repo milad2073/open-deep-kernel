@@ -11,4 +11,8 @@ class baseTransformation:
     
     @abstractmethod
     def replacement(self, graph, node):
+        pass   
+    
+    @abstractmethod
+    def is_applicable(self, node):
         pass
