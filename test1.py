@@ -1,4 +1,4 @@
-from odk import Kernels, Backend
+from odk import Registry, Backend
 import triton
 import triton.language as tl
 import torch 
@@ -18,7 +18,12 @@ def add_kernel(
     y = tl.load(y_ptr + offsets, mask=mask)
     tl.store(output_ptr + offsets, x + y, mask=mask)
 
-# Setting the kernels
+## Setting the kernels
+
+# 1) making a Registy object
+Kernels = Registry()
+
+# 2) adding the kernels to the registry
 @Kernels.set_addaion
 def triton_add(x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
     assert x.shape == y.shape, "Shapes of tensors must match"
@@ -34,11 +39,11 @@ def triton_add(x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
     )
     return output
 
-# Derfining the model
+## Defining the model
 model = models.resnet18().cuda()
 
-# create a backend 
-my_backecnd = Backend(draw_graphes=True)
+## create a backend 
+my_backecnd = Backend(Kernels, draw_graphes=True)
 # replacing pytorch built-in kernels with defined kernels 
 torch._dynamo.reset()
 model_with_relaced_kernels = torch.compile(model, backend=my_backecnd)

@@ -1,2 +1,2 @@
 from .backend_handler import Backend
-from .register import Kernels
+from .register.registry import Registry 

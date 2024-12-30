@@ -1,5 +1,5 @@
 import torch 
-from .register import Kernels
+from .register.registry import Registry
 from .graph_transformations.base import baseTransformation
 from pathlib import Path
 from torch.fx.passes.graph_drawer import FxGraphDrawer
@@ -7,8 +7,9 @@ from torch.fx.passes.graph_drawer import FxGraphDrawer
 
 # It is a custom backend for torch.compile   
 class Backend:
-    def __init__(self,draw_graphes=False, result_path=None) -> None:
+    def __init__(self, kernel_dict: Registry, draw_graphes=False, result_path=None) -> None:
         self.draw_graphes = draw_graphes
+        self.kernel_dict = kernel_dict
         if result_path==None:
             self.result_path = Path.home() / ".odk"
         else:
@@ -27,7 +28,7 @@ class Backend:
         graph = graph_module.graph
         for node in graph.nodes:
             kernel:baseTransformation
-            for kernel_name, kernel in Kernels.items():
+            for kernel_name, kernel in self.kernel_dict.items():
                 if (node.target in kernel.operators):
                     kernel.replacement(graph, node)
                     
