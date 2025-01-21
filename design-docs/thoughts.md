@@ -1,6 +1,6 @@
 DAY 1:<br/>
 The library can be:
-1) a playground to relace each part of "pytorch GPU functions" with your own triton kernel
+1) a playground to replace each part of "pytorch GPU functions" with your own triton kernel
 2) a real tool for upgrading "pytorch GPU functions" 
 3) an easy and convinient way of adding extra kernels to pytorch
 
@@ -8,7 +8,7 @@ The library can be:
 
 DAY 2:<br/>
 It seems the best practice for replacing Triton kernels with
-pytorch is not by mokey-patching, instead, three options are presented:
+pytorch is not by monkey-patching, instead, three options are presented:
 1) Torch Compile    --> since version 2.0
 2) Torch fx         --> since version 1.8
 3) Torch jit        --> since version 1.0 <br/>
@@ -33,4 +33,11 @@ DAY 4:<br/>
 It seems both torch fx and torch compile graphes does not show the fines element as their nodes. For example instead of showing the "matmul" operation, they show the "linear" function. <br/>
 
 We may need to implemenmt a pass that decompose the high level nodes with the low level nodes. <br/>
+
+
+<br/>
+<br/>
+DAY 9:<br/>
+torch._inductor may give us an opertunity to access low level operators. <br/>
+
 
