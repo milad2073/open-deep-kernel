@@ -20,5 +20,6 @@ class addation(baseTransformation):
             )
             node.replace_all_uses_with(new_node)
             graph.erase_node(node)
+        return True
     
     

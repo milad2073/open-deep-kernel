@@ -6,8 +6,6 @@ import torch
 
 class relu(baseTransformation):
     
-    
-    
     def __init__(self, func):
         super().__init__()
         self.func = func
@@ -24,5 +22,6 @@ class relu(baseTransformation):
             )
             node.replace_all_uses_with(new_node)
             graph.erase_node(node)
+        return True
     
     
