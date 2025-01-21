@@ -1,2 +1,2 @@
-from .backend_handler import Backend
+from .backend_handler import ODKBackend
 from .register.registry import Registry 
