@@ -1,5 +1,5 @@
 import torch
-from ..graph_transformations import addation, relu
+from ..graph_passes import addation, relu
 
 
 class Registry(dict):

@@ -1,6 +1,6 @@
 import torch 
 from .register.registry import Registry
-from .graph_transformations.base import baseTransformation
+from .graph_passes.base import basePass
 from pathlib import Path
 from torch.fx.passes.graph_drawer import FxGraphDrawer
 from  datetime import datetime
@@ -33,11 +33,11 @@ class ODKBackend:
             
         graph = graph_module.graph
         for node in graph.nodes:
-            transformation:baseTransformation
-            for transformation_name, transformation in self.kernel_dict.items():
-                if transformation.is_applicable(node):
-                    transformation.replacement(graph, node)
-                    logger.debug(f"Node Replacement: transformation type -> '{transformation_name}'  "+
+            graph_pass:basePass
+            for graph_pass_name, graph_pass in self.kernel_dict.items():
+                if graph_pass.is_applicable(node):
+                    graph_pass.replacement(graph, node)
+                    logger.debug(f"Node Replacement: pass type -> '{graph_pass_name}'  "+
                                  f"node name -> '{node.name}'")
                     
         graph.lint()
