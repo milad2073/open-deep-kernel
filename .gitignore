@@ -169,5 +169,12 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+<<<<<<< HEAD
 ### VisualStudioCode ###
 .vscode/* 
+=======
+
+
+### VisualStudioCode ###
+.vscode/* 
+>>>>>>> fd046169871a2af3e8bd3241773952ef71114ce2

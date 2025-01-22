@@ -1,14 +1,13 @@
 # OpenDeepKernel
 
-**OpenDeepKernel** is a flexible, high-performance deep learning framework built to enable practitioners and researchers to experiment with custom kernel implementations and optimizations. Leveraging **Triton-lang** for JIT-compiled GPU kernels, OpenDeepKernel provides full control over the kernel code, allowing users to easily integrate, test, and optimize custom kernels for both training and inference. This makes it ideal for users who want to explore the deep learning process at the kernel level and leverage GPU acceleration for optimized performance.
+**OpenDeepKernel** is a flexible framework built to enable practitioners and researchers to experiment with custom triton kernel implementations and optimizations. Leveraging **Triton-lang** for JIT-compiled GPU kernels, OpenDeepKernel provides full control over the kernel code, allowing users to easily integrate, test, and optimize custom kernels for both training and inference. This makes it ideal for users who want to explore the deep learning process at the kernel level and leverage GPU acceleration for optimized performance.
 
 ## Features
 
 - **Customizable Kernels:** Implement your own deep learning kernels using Triton-lang and replace the default ones.
 - **Kernel-Level Experimentation:** Flexibly experiment with different kernels to optimize performance for a wide range of tasks.
-- **GPU Acceleration:** Built for high-performance, GPU-accelerated deep learning workflows using **Triton**.
 - **Simple API:** Provides a simple and extensible API to customize and integrate kernels into your models.
-- **Optimized Training and Inference:** Efficient execution of deep learning models with support for various GPU models.
+
 
 ## Installation
 
@@ -20,42 +19,89 @@ cd open-deep-kernel
 pip install .
 ```
 
-## Getting Started
-Define Custom Kernels
-In OpenDeepKernel, users can define custom kernels by writing their own kernel code and integrating it into the training or inference pipeline. To define a custom kernel, follow these steps:
-
-Create a new kernel file in the kernels directory.
-Implement the kernel logic in the file.
-Integrate the kernel by specifying it in the model configuration or during training.
-Example:
-```python
-import opendeepkernel as odk
-
-# Define a custom kernel function
-def custom_kernel(input_tensor):
-    # Implement custom logic
-    return output_tensor
-
-# Use the custom kernel in a model
-model = odk.Model(kernel=custom_kernel)
-model.train()
-```
 
 ## Experiment with Different Kernels
-You can experiment with different kernels in a modular fashion. The framework allows you to swap kernels at various stages of the model's pipeline (e.g., during forward pass, backpropagation, etc.).
+You can experiment with different kernels in a modular fashion.
+#### Define custom kernel(s)
+Implement your custom kernels using Triton-lang. Here's a simple example of a custom kernel:
+
+
 ```python
-model.set_kernel('custom_kernel')
+import triton
+import triton.language as tl
+
+@triton.jit
+def relu_kernel(x_ptr, y_ptr, n_elements, BLOCK_SIZE: tl.constexpr):
+    pid = tl.program_id(axis=0)
+    block_start = pid * BLOCK_SIZE
+    offsets = block_start + tl.arange(0, BLOCK_SIZE)
+    mask = offsets < n_elements
+    x = tl.load(x_ptr + offsets, mask=mask)
+    y = tl.maximum(x, 0.0)
+    tl.store(y_ptr + offsets, y, mask=mask)
 ```
 
-## Training and Inference
-Once your custom kernel is defined, you can start training your models using the built-in training loop:
+
+#### Register your custom kernel(s) 
+Create a registry objects that collects your custom kernels
+
 ```python
-model.train()
+from odk import Registry
+import torch 
+
+Kernels = Registry()
+
+# 1) making a Registy object
+Kernels = Registry()
+
+# 2) adding the kernels to the registry
+@Kernels.set_relu
+def triton_relu(x):
+    y = torch.empty_like(x)
+    N = x.numel()
+    BSIZE = 1024
+    grid = lambda meta: (triton.cdiv(N, meta['BLOCK_SIZE']),)
+    relu_kernel[grid](x, y, N, BLOCK_SIZE=BSIZE)
+    return y
+
 ```
-For inference:
+
+#### Replace pytorch default operators
+Using ODKBackend class, create a custom "torch.compile" backend that can replace pytorch default operations with your triton kernels.  
 ```python
-predictions = model.infer(input_data)
+from odk import ODKBackend
+
+## create a backend 
+my_backecnd = ODKBackend(Kernels, draw_graphes=True)
+# replacing pytorch built-in kernels with defined kernels 
+torch._dynamo.reset()
+model_with_relaced_kernels = torch.compile(model, backend=my_backecnd)
 ```
+
+Now use the created backend to modify any pytorch models. 
+
+```python
+import torchvision.models as models 
+
+## Defining the model
+model = models.resnet18().cuda()
+
+# generating data
+def generate_data(b):
+    return (
+        torch.randn(b, 3, 299, 299).to(torch.float32).cuda(),
+        torch.randint(1000, (b,)).cuda(),
+    )
+
+inp = generate_data(1)[0]
+
+
+out_1 = model(inp)
+out_2 = model_with_relaced_kernels(inp)
+
+print(torch.isclose(out_1, out_2).all())
+```
+
 
 ## Documentation
 The full documentation for OpenDeepKernel will be available soon. For now, please refer to the code and examples to get started.
