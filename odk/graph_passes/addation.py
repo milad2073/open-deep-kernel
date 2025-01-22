@@ -1,10 +1,10 @@
-from .base import baseTransformation
+from .base import basePass
 import operator
 import torch
 
 
 
-class addation(baseTransformation):
+class addation(basePass):
         
     def __init__(self, func):
         super().__init__()

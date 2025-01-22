@@ -65,7 +65,7 @@ model = models.resnet18().cuda()
 my_backecnd = ODKBackend(Kernels, draw_graphes=True)
 # replacing pytorch built-in kernels with defined kernels 
 torch._dynamo.reset()
-model_with_relaced_kernels = torch.compile(model, backend=my_backecnd)
+model_with_replaced_kernels = torch.compile(model, backend=my_backecnd)
 
 
 
@@ -81,6 +81,6 @@ inp = generate_data(1)[0]
 
 
 out_1 = model(inp)
-out_2 = model_with_relaced_kernels(inp)
+out_2 = model_with_replaced_kernels(inp)
 
 print(torch.isclose(out_1, out_2).all())

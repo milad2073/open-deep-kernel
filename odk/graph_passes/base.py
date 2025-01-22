@@ -1,6 +1,6 @@
 from abc import abstractmethod
 
-class baseTransformation:
+class basePass:
     """
     Abstract base class for transformations applied to graphs.
     This class defines the interface for all graph transformation classes.
