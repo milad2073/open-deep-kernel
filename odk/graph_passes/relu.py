@@ -1,17 +1,19 @@
-from .base import baseTransformation
+from .base import basePass
 import operator
 import torch
 
 
 
-class addation(baseTransformation):
-    
-    operators = [operator.iadd, operator.add, torch.add ]
+class relu(basePass):
     
     def __init__(self, func):
         super().__init__()
         self.func = func
     
+    def is_applicable(self, node):
+        if node.op == "call_module":
+            return node.meta['source_fn'][1] == torch.nn.modules.activation.ReLU
+        return False
     
     def replacement (self, graph, node):
         with graph.inserting_after(node):
@@ -20,5 +22,6 @@ class addation(baseTransformation):
             )
             node.replace_all_uses_with(new_node)
             graph.erase_node(node)
+        return True
     
     

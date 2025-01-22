@@ -1,2 +1,4 @@
-from .backend_handler import odk_backend
-from .register import Kernels
+from .backend_handler import ODKBackend
+from .register.registry import Registry 
+
+__version__ = "0.1.0"
