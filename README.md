@@ -73,19 +73,19 @@ from odk import ODKBackend
 
 ## create a backend 
 my_backecnd = ODKBackend(Kernels, draw_graphes=True)
-# replacing pytorch built-in kernels with defined kernels 
-torch._dynamo.reset()
-model_with_relaced_kernels = torch.compile(model, backend=my_backecnd)
-```
 
-Now use the created backend to modify any pytorch models. 
-
-```python
-import torchvision.models as models 
-
+## Now use the created backend to modify any pytorch models. 
 ## Defining the model
+import torchvision.models as models 
 model = models.resnet18().cuda()
 
+# replacing pytorch built-in kernels with defined kernels 
+torch._dynamo.reset()
+model_with_replaced_kernels = torch.compile(model, backend=my_backecnd)
+```
+Validating the generates model:
+
+```python
 # generating data
 def generate_data(b):
     return (
@@ -95,9 +95,8 @@ def generate_data(b):
 
 inp = generate_data(1)[0]
 
-
 out_1 = model(inp)
-out_2 = model_with_relaced_kernels(inp)
+out_2 = model_with_replaced_kernels(inp)
 
 print(torch.isclose(out_1, out_2).all())
 ```
