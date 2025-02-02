@@ -1,54 +1,54 @@
-import torch
-from ..graph_passes import addation, relu
+from .. import graph_passes
 
+def add_latest_passes_to_docstribg(func):
+    func.__doc__ = func.__doc__.replace('graph_passes.__all__',
+                                        str(graph_passes.__all__))
+    return func    
 
 class Registry(dict):
+
     
-    def __new__(cls):
-        if not hasattr(cls, 'instance'):
-            cls.instance = super(Registry, cls).__new__(cls)
-        return cls.instance
-    
-    def __init__(self) -> None:
-        self.kernels = {}
-        
-    
-    
-    def set_addaion(self,func): 
+    """A registry for storing and retrieving operations."""
+    @add_latest_passes_to_docstribg
+    def set(self, key: str):
         """
-        Decorator to register a function as an 'addation' operation in the Registry.
+        Decorator to register a function as an operation in the Registry.
 
-        This method takes a function as an argument, wraps it with the `addation` 
-        transformation, and stores it in the Registry under the key 'addation'. 
-        This allows for easy retrieval and application of the 'addation' operation 
-        later in the program.
+        This method takes a string key representing the operation name, 
+        checks if it is a valid operator, and returns a decorator that 
+        wraps a function. The wrapped function is then stored in the 
+        Registry under the specified key after.
 
+        Parameters:
+        -----------
+        key : str
+            The name of the operation to register. This should match one 
+            of the keys defined in `graph_passes.__all__`.
+
+        Returns:
         --------
-        @registry.set_addaion
-        
-        def my_addition_function(x, y):
-            pass
-        """
-        self.__setitem__('addation', addation(func))
-        return func
-    
-    def set_relu(self,func):
-        """
-        Decorator to register a function as a 'ReLU' operation in the Registry.
+        function
+            A decorator that wraps the function to be registered.
 
-        This method takes a function as an argument, wraps it with the ReLU 
-        transformation, and stores it in the Registry under the key 'relu'. 
-        This allows for easy retrieval and application of the 'ReLU' operation 
-        later in the program.
+        Raises:
+        -------
+        KeyError
+            If the provided key is not a valid operator name.
 
-        --------
-        @registry.set_relu
-        
+        Example:
+        ---------
+        @registry.set('relu')
         def my_relu_function(x):
-            pass
+            return max(0, x)
         """
-        self.__setitem__('relu', relu(func))  
-        return func     
+        lower_key = key.lower()
+        if lower_key not in graph_passes.__all__:
+            raise KeyError("{} is an invalid operator name. The currently supported operators are: {}".format(lower_key, graph_passes.__all__))
         
-    
+        def wrap(func):
+            pass_class = getattr(graph_passes, lower_key)
+            self.__setitem__(lower_key, pass_class(func))
+            return func
+        
+        return wrap
     

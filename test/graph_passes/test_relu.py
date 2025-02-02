@@ -22,7 +22,7 @@ def relu_kernel(x_ptr, y_ptr, n_elements, BLOCK_SIZE: tl.constexpr):
 Kernels = Registry()
 
 
-@Kernels.set_relu
+@Kernels.set('relu')
 def triton_relu(x):
     y = torch.empty_like(x)
     N = x.numel()

@@ -34,7 +34,7 @@ def relu_kernel(x_ptr, y_ptr, n_elements, BLOCK_SIZE: tl.constexpr):
 Kernels = Registry()
 
 # 2) adding the kernels to the registry
-@Kernels.set_addaion
+@Kernels.set('addation')
 def triton_add(x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
     assert x.shape == y.shape, "Shapes of tensors must match"
     output = torch.empty_like(x)
@@ -49,7 +49,7 @@ def triton_add(x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
     )
     return output
 
-@Kernels.set_relu
+@Kernels.set('relu')
 def triton_relu(x):
     y = torch.empty_like(x)
     N = x.numel()

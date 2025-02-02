@@ -55,7 +55,7 @@ Kernels = Registry()
 Kernels = Registry()
 
 # 2) adding the kernels to the registry
-@Kernels.set_relu
+@Kernels.set('relu')
 def triton_relu(x):
     y = torch.empty_like(x)
     N = x.numel()
